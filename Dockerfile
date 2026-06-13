@@ -1,4 +1,4 @@
-FROM tomcat:11-jdk17-temurin
+FROM tomcat:11-jdk21-temurin
 
 # Remove default Tomcat applications
 RUN rm -rf /usr/local/tomcat/webapps/*
