@@ -92,4 +92,26 @@ public class ControllerMovie {
 
         return m;
     }
+    public List<Movie> getByMood(int idMood) throws SQLException {
+    String sql = "SELECT * FROM movies WHERE id_mood = ?";
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(sql);
+    pstm.setInt(1, idMood);
+    ResultSet rs = pstm.executeQuery();
+    List<Movie> lista = new ArrayList<>();
+    while (rs.next()) {
+        Movie m = new Movie();
+        m.setId_movie(rs.getInt("id_movie"));
+        m.setTitle(rs.getString("title"));
+        m.setDescription(rs.getString("description"));
+        m.setYear(rs.getInt("year"));
+        m.setImage_url(rs.getString("image_url"));
+        m.setId_genre(rs.getInt("id_genre"));
+        m.setId_mood(rs.getInt("id_mood"));
+        lista.add(m);
+    }
+    rs.close(); conn.close(); connMysql.close();
+    return lista;
+}
 }

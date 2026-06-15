@@ -127,4 +127,31 @@ public Response login(User credentials) {
                 .build();
     }
 }
+@Path("update")
+@PUT
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public Response update(User u) {
+    try {
+        User updated = new ControllerUser().update(u);
+        if (updated == null) return Response.status(404).entity("{\"error\":\"User not found\"}").build();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        return Response.ok(gson.toJson(updated)).build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Internal server error\"}").build();
+    }
+}
+
+@Path("delete/{id_user}")
+@DELETE
+@Produces(MediaType.APPLICATION_JSON)
+public Response delete(@PathParam("id_user") int idUser) {
+    try {
+        boolean ok = new ControllerUser().delete(idUser);
+        if (!ok) return Response.status(404).entity("{\"error\":\"User not found\"}").build();
+        return Response.ok("{\"deleted\":true}").build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Internal server error\"}").build();
+    }
+}
 }

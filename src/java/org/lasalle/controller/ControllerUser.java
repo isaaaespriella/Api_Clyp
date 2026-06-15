@@ -180,4 +180,42 @@ fetch.close();
 
     return u;
 }
+    public User update(User u) throws SQLException {
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(
+        "UPDATE users SET name=?, email=? WHERE id_user=?");
+    pstm.setString(1, u.getName());
+    pstm.setString(2, u.getEmail());
+    pstm.setInt(3, u.getId_user());
+    int rows = pstm.executeUpdate();
+
+    if (rows == 0) { pstm.close(); conn.close(); connMysql.close(); return null; }
+
+    PreparedStatement fetch = conn.prepareStatement(
+        "SELECT * FROM users WHERE id_user = ?");
+    fetch.setInt(1, u.getId_user());
+    ResultSet rs = fetch.executeQuery();
+    User updated = null;
+    if (rs.next()) {
+        updated = new User();
+        updated.setId_user(rs.getInt("id_user"));
+        updated.setName(rs.getString("name"));
+        updated.setEmail(rs.getString("email"));
+        updated.setCreated_at(formatIso(rs.getTimestamp("created_at")));
+    }
+    rs.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
+    return updated;
+}
+
+public boolean delete(int idUser) throws SQLException {
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(
+        "DELETE FROM users WHERE id_user = ?");
+    pstm.setInt(1, idUser);
+    int rows = pstm.executeUpdate();
+    pstm.close(); conn.close(); connMysql.close();
+    return rows > 0;
+}
 }

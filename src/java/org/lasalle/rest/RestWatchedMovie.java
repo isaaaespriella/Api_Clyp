@@ -22,51 +22,54 @@ public class RestWatchedMovie {
     @Path("getAll")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-  public Response getAll(@QueryParam("id_user") int idUser) {
-
-        ControllerWatchedMovie cw = new ControllerWatchedMovie();
-        String out = "";
-        Gson gson = new Gson();
-
+    public Response getAll(@QueryParam("id_user") int idUser) {
         try {
-
+            ControllerWatchedMovie cw = new ControllerWatchedMovie();
             List<WatchedMovie> lista = cw.getAll(idUser);
-            out = gson.toJson(lista);
-
+            return Response.ok(new Gson().toJson(lista)).build();
         } catch (Exception e) {
-
-            out = """
-                  {"response":"Error al traer películas vistas"}
-                  """;
+            return Response.status(500).entity("{\"error\":\"Error al traer películas vistas\"}").build();
         }
+    }
 
-        return Response.ok(out).build();
+    @Path("getByUser/{id_user}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getByUser(@PathParam("id_user") int idUser) {
+        try {
+            ControllerWatchedMovie cw = new ControllerWatchedMovie();
+            List<WatchedMovie> lista = cw.getAll(idUser);
+            return Response.ok(new Gson().toJson(lista)).build();
+        } catch (Exception e) {
+            return Response.status(500).entity("{\"error\":\"Error\"}").build();
+        }
     }
 
     @Path("save")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response save(WatchedMovie w) throws Exception {
-
-        ControllerWatchedMovie cw = new ControllerWatchedMovie();
-
-        w = cw.save(w);
-
-        String out = "";
-
-        if (w.getId() != 0) {
-
-            Gson gson = new Gson();
-            out = gson.toJson(w);
-
-        } else {
-
-            out = """
-                  {"response":"Error al insertar"}
-                  """;
+    public Response save(WatchedMovie w) {
+        try {
+            ControllerWatchedMovie cw = new ControllerWatchedMovie();
+            w = cw.save(w);
+            return Response.ok(new Gson().toJson(w)).build();
+        } catch (Exception e) {
+            return Response.status(500).entity("{\"error\":\"Error al guardar\"}").build();
         }
+    }
 
-        return Response.ok(out).build();
+    @Path("delete/{id_watched}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("id_watched") int idWatched) {
+        try {
+            ControllerWatchedMovie cw = new ControllerWatchedMovie();
+            boolean ok = cw.delete(idWatched);
+            if (!ok) return Response.status(404).entity("{\"error\":\"Not found\"}").build();
+            return Response.ok("{\"deleted\":true}").build();
+        } catch (Exception e) {
+            return Response.status(500).entity("{\"error\":\"Error al eliminar\"}").build();
+        }
     }
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/web/index.html</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/connection/ConnectionMysql.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/model/User.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/model/Mood.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/model/Genre.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/model/Movie.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/model/MoodCheckin.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/model/WatchedMovie.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/controller/ControllerUser.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/controller/ControllerMood.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/controller/ControllerGenre.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/controller/ControllerMovie.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/controller/ControllerMoodCheckin.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/controller/ControllerWatchedMovie.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/rest/RestUser.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/rest/RestMood.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/rest/RestGenre.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/rest/RestMovie.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/rest/RestMoodCheckin.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/rest/RestWatchedMovie.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/web/test-resbeans.js</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/src/java/org/lasalle/controller/BCryptHelper.java</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/web/WEB-INF/web.xml</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/Dockerfile</file>
+            <file>file:/C:/Users/isaa/Documents/NetBeansProjects/API_Clyp/.git/config</file>
+        </group>
+    </open-files>
+</project-private>

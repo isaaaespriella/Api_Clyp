@@ -22,50 +22,63 @@ public class RestMoodCheckin {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll(@QueryParam("id_user") int idUser) {
-
-        ControllerMoodCheckin cm = new ControllerMoodCheckin();
-        String out = "";
-        Gson gson = new Gson();
-
         try {
-
-            List<MoodCheckin> lista = cm.getAll(idUser);
-            out = gson.toJson(lista);
-
+            List<MoodCheckin> lista = new ControllerMoodCheckin().getAll(idUser);
+            return Response.ok(new Gson().toJson(lista)).build();
         } catch (Exception e) {
-
-            out = """
-                  {"response":"Error al traer checkins"}
-                  """;
+            return Response.status(500).entity("{\"error\":\"Error al traer checkins\"}").build();
         }
+    }
 
-        return Response.ok(out).build();
+    @Path("getByUser/{id_user}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getByUser(@PathParam("id_user") int idUser) {
+        try {
+            List<MoodCheckin> lista = new ControllerMoodCheckin().getAll(idUser);
+            return Response.ok(new Gson().toJson(lista)).build();
+        } catch (Exception e) {
+            return Response.status(500).entity("{\"error\":\"Error\"}").build();
+        }
     }
 
     @Path("save")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response save(MoodCheckin m) throws Exception {
-
-        ControllerMoodCheckin cm = new ControllerMoodCheckin();
-
-        m = cm.save(m);
-
-        String out = "";
-
-        if (m.getId_checkin() != 0) {
-
-            Gson gson = new Gson();
-            out = gson.toJson(m);
-
-        } else {
-
-            out = """
-                  {"response":"Error al insertar"}
-                  """;
+    public Response save(MoodCheckin m) {
+        try {
+            m = new ControllerMoodCheckin().save(m);
+            return Response.ok(new Gson().toJson(m)).build();
+        } catch (Exception e) {
+            return Response.status(500).entity("{\"error\":\"Error al insertar\"}").build();
         }
+    }
 
-        return Response.ok(out).build();
+    @Path("update")
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(MoodCheckin m) {
+        try {
+            MoodCheckin updated = new ControllerMoodCheckin().update(m);
+            if (updated == null) return Response.status(404).entity("{\"error\":\"Checkin not found\"}").build();
+            return Response.ok(new Gson().toJson(updated)).build();
+        } catch (Exception e) {
+            return Response.status(500).entity("{\"error\":\"Error al actualizar\"}").build();
+        }
+    }
+
+    @Path("delete/{id_checkin}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("id_checkin") int idCheckin) {
+        try {
+            boolean ok = new ControllerMoodCheckin().delete(idCheckin);
+            if (!ok) return Response.status(404).entity("{\"error\":\"Not found\"}").build();
+            return Response.ok("{\"deleted\":true}").build();
+        } catch (Exception e) {
+            return Response.status(500).entity("{\"error\":\"Error al eliminar\"}").build();
+        }
     }
 }

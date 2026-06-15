@@ -68,4 +68,16 @@ public class RestMovie {
 
         return Response.ok(out).build();
     }
+    @Path("getByMood/{id_mood}")
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+public Response getByMood(@PathParam("id_mood") int idMood) {
+    try {
+        ControllerMovie cm = new ControllerMovie();
+        List<Movie> lista = cm.getByMood(idMood);
+        return Response.ok(new Gson().toJson(lista)).build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al traer películas por mood\"}").build();
+    }
+}
 }
