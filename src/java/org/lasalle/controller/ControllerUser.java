@@ -180,7 +180,7 @@ fetch.close();
 
     return u;
 }
-    public User update(User u) throws SQLException {
+   public User update(User u) throws SQLException {
     ConnectionMysql connMysql = new ConnectionMysql();
     Connection conn = connMysql.open();
     PreparedStatement pstm = conn.prepareStatement(
@@ -188,9 +188,14 @@ fetch.close();
     pstm.setString(1, u.getName());
     pstm.setString(2, u.getEmail());
     pstm.setInt(3, u.getId_user());
-    int rows = pstm.executeUpdate();
 
-    if (rows == 0) { pstm.close(); conn.close(); connMysql.close(); return null; }
+    try {
+        int rows = pstm.executeUpdate();
+        if (rows == 0) { pstm.close(); conn.close(); connMysql.close(); return null; }
+    } catch (SQLIntegrityConstraintViolationException e) {
+        pstm.close(); conn.close(); connMysql.close();
+        throw e;
+    }
 
     PreparedStatement fetch = conn.prepareStatement(
         "SELECT * FROM users WHERE id_user = ?");

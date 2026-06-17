@@ -127,6 +127,8 @@ public Response login(User credentials) {
                 .build();
     }
 }
+
+
 @Path("update")
 @PUT
 @Produces(MediaType.APPLICATION_JSON)
@@ -137,10 +139,14 @@ public Response update(User u) {
         if (updated == null) return Response.status(404).entity("{\"error\":\"User not found\"}").build();
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         return Response.ok(gson.toJson(updated)).build();
+    } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+        return Response.status(409).entity("{\"error\":\"Email already in use\"}").build();
     } catch (Exception e) {
         return Response.status(500).entity("{\"error\":\"Internal server error\"}").build();
     }
 }
+
+
 
 @Path("delete/{id_user}")
 @DELETE

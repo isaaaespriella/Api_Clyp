@@ -73,7 +73,7 @@ public class RestWatchedMovie {
         }
     }
     
-    @Path("deleteByUserAndMovie")
+@Path("deleteByUserAndMovie")
 @DELETE
 @Produces(MediaType.APPLICATION_JSON)
 public Response deleteByUserAndMovie(
