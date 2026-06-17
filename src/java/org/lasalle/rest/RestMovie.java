@@ -80,4 +80,34 @@ public Response getByMood(@PathParam("id_mood") int idMood) {
         return Response.status(500).entity("{\"error\":\"Error al traer películas por mood\"}").build();
     }
 }
+
+
+@Path("update")
+@PUT
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public Response update(Movie m) {
+    try {
+        Movie updated = new ControllerMovie().update(m);
+        if (updated == null) return Response.status(404).entity("{\"error\":\"Movie not found\"}").build();
+        return Response.ok(new Gson().toJson(updated)).build();
+    } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+        return Response.status(400).entity("{\"error\":\"Invalid id_genre or id_mood\"}").build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al actualizar\"}").build();
+    }
+}
+
+@Path("delete/{id_movie}")
+@DELETE
+@Produces(MediaType.APPLICATION_JSON)
+public Response delete(@PathParam("id_movie") int idMovie) {
+    try {
+        boolean ok = new ControllerMovie().delete(idMovie);
+        if (!ok) return Response.status(404).entity("{\"error\":\"Movie not found\"}").build();
+        return Response.ok("{\"deleted\":true}").build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al eliminar\"}").build();
+    }
+}
 }

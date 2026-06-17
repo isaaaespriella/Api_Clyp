@@ -42,30 +42,52 @@ public class RestGenre {
         return Response.ok(out).build();
     }
 
-    @Path("save")
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response save(Genre g) throws Exception {
-
-        ControllerGenre cg = new ControllerGenre();
-
-        g = cg.save(g);
-
-        String out = "";
-
-        if (g.getId_genre() != 0) {
-
-            Gson gson = new Gson();
-            out = gson.toJson(g);
-
-        } else {
-
-            out = """
-                  {"response":"Error al insertar"}
-                  """;
-        }
-
-        return Response.ok(out).build();
+   @Path("save")
+@POST
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public Response save(Genre g) {
+    if (g == null || g.getName() == null || g.getName().isBlank()) {
+        return Response.status(400).entity("{\"error\":\"name is required\"}").build();
     }
+    try {
+        ControllerGenre cg = new ControllerGenre();
+        g = cg.save(g);
+        return Response.ok(new Gson().toJson(g)).build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al insertar\"}").build();
+    }
+}
+    
+    
+    @Path("update")
+@PUT
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public Response update(Genre g) {
+    try {
+        Genre updated = new ControllerGenre().update(g);
+        if (updated == null) return Response.status(404).entity("{\"error\":\"Genre not found\"}").build();
+        return Response.ok(new Gson().toJson(updated)).build();
+    } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+        return Response.status(409).entity("{\"error\":\"Genre name already exists\"}").build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al actualizar\"}").build();
+    }
+}
+
+@Path("delete/{id_genre}")
+@DELETE
+@Produces(MediaType.APPLICATION_JSON)
+public Response delete(@PathParam("id_genre") int idGenre) {
+    try {
+        boolean ok = new ControllerGenre().delete(idGenre);
+        if (!ok) return Response.status(404).entity("{\"error\":\"Genre not found\"}").build();
+        return Response.ok("{\"deleted\":true}").build();
+    } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+        return Response.status(409).entity("{\"error\":\"genre in use\"}").build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al eliminar\"}").build();
+    }
+}
 }

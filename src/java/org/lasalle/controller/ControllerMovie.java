@@ -114,4 +114,76 @@ public class ControllerMovie {
     rs.close(); conn.close(); connMysql.close();
     return lista;
 }
+    
+    public Movie update(Movie m) throws SQLException {
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(
+        "UPDATE movies SET title=?, description=?, year=?, image_url=?, id_genre=?, id_mood=? WHERE id_movie=?");
+    pstm.setString(1, m.getTitle());
+    pstm.setString(2, m.getDescription());
+    pstm.setInt(3, m.getYear());
+    pstm.setString(4, m.getImage_url());
+    pstm.setInt(5, m.getId_genre());
+    pstm.setInt(6, m.getId_mood());
+    pstm.setInt(7, m.getId_movie());
+
+    int rows;
+    try {
+        rows = pstm.executeUpdate();
+    } catch (SQLIntegrityConstraintViolationException e) {
+        pstm.close(); conn.close(); connMysql.close();
+        throw e;
+    }
+    if (rows == 0) { pstm.close(); conn.close(); connMysql.close(); return null; }
+
+    PreparedStatement fetch = conn.prepareStatement(
+        "SELECT * FROM movies WHERE id_movie = ?");
+    fetch.setInt(1, m.getId_movie());
+    ResultSet rs = fetch.executeQuery();
+    Movie updated = null;
+    if (rs.next()) {
+        updated = new Movie();
+        updated.setId_movie(rs.getInt("id_movie"));
+        updated.setTitle(rs.getString("title"));
+        updated.setDescription(rs.getString("description"));
+        updated.setYear(rs.getInt("year"));
+        updated.setImage_url(rs.getString("image_url"));
+        updated.setId_genre(rs.getInt("id_genre"));
+        updated.setId_mood(rs.getInt("id_mood"));
+    }
+    rs.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
+    return updated;
+}
+
+public boolean delete(int idMovie) throws SQLException {
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+
+    // Cascada manual: borrar referencias antes que la película
+    PreparedStatement delWatched = conn.prepareStatement(
+        "DELETE FROM watched_movies WHERE id_movie = ?");
+    delWatched.setInt(1, idMovie);
+    delWatched.executeUpdate();
+    delWatched.close();
+
+    PreparedStatement delFav = conn.prepareStatement(
+        "DELETE FROM favorites WHERE id_movie = ?");
+    delFav.setInt(1, idMovie);
+    delFav.executeUpdate();
+    delFav.close();
+
+    PreparedStatement delRev = conn.prepareStatement(
+        "DELETE FROM reviews WHERE id_movie = ?");
+    delRev.setInt(1, idMovie);
+    delRev.executeUpdate();
+    delRev.close();
+
+    PreparedStatement pstm = conn.prepareStatement(
+        "DELETE FROM movies WHERE id_movie = ?");
+    pstm.setInt(1, idMovie);
+    int rows = pstm.executeUpdate();
+    pstm.close(); conn.close(); connMysql.close();
+    return rows > 0;
+}
 }
