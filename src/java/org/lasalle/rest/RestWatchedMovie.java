@@ -72,4 +72,19 @@ public class RestWatchedMovie {
             return Response.status(500).entity("{\"error\":\"Error al eliminar\"}").build();
         }
     }
+    
+    @Path("deleteByUserAndMovie")
+@DELETE
+@Produces(MediaType.APPLICATION_JSON)
+public Response deleteByUserAndMovie(
+        @QueryParam("id_user") int idUser,
+        @QueryParam("id_movie") int idMovie) {
+    try {
+        boolean ok = new ControllerWatchedMovie().deleteByUserAndMovie(idUser, idMovie);
+        if (!ok) return Response.status(404).entity("{\"error\":\"Not found\"}").build();
+        return Response.ok().build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al eliminar\"}").build();
+    }
+}
 }

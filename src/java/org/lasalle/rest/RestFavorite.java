@@ -54,4 +54,19 @@ public class RestFavorite {
             return Response.status(500).entity("{\"error\":\"Error\"}").build();
         }
     }
+    
+    @Path("deleteByUserAndMovie")
+@DELETE
+@Produces(MediaType.APPLICATION_JSON)
+public Response deleteByUserAndMovie(
+        @QueryParam("id_user") int idUser,
+        @QueryParam("id_movie") int idMovie) {
+    try {
+        boolean ok = new ControllerFavorite().deleteByUserAndMovie(idUser, idMovie);
+        if (!ok) return Response.status(404).entity("{\"error\":\"Not found\"}").build();
+        return Response.ok().build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error\"}").build();
+    }
+}
 }

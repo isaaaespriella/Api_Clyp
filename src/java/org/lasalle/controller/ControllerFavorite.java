@@ -68,6 +68,18 @@ public class ControllerFavorite {
         pstm.close(); conn.close(); connMysql.close();
         return rows > 0;
     }
+    
+    public boolean deleteByUserAndMovie(int idUser, int idMovie) throws SQLException {
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(
+        "DELETE FROM favorites WHERE id_user = ? AND id_movie = ?");
+    pstm.setInt(1, idUser);
+    pstm.setInt(2, idMovie);
+    int rows = pstm.executeUpdate();
+    pstm.close(); conn.close(); connMysql.close();
+    return rows > 0;
+}
 
     private String formatIso(java.sql.Timestamp ts) {
         if (ts == null) return null;

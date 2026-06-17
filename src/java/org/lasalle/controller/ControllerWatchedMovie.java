@@ -34,7 +34,7 @@ public class ControllerWatchedMovie {
 
         while (rs.next()) {
             WatchedMovie w = new WatchedMovie();
-            w.setId_watched(rs.getInt("id"));   // columna en DB sigue llamándose "id"
+            w.setId(rs.getInt("id"));   // columna en DB sigue llamándose "id"
             w.setId_user(rs.getInt("id_user"));
             w.setId_movie(rs.getInt("id_movie"));
             w.setWatched_at(formatIso(rs.getTimestamp("watched_at")));
@@ -56,7 +56,7 @@ public class ControllerWatchedMovie {
         ResultSet existing = check.executeQuery();
 
         if (existing.next()) {
-            w.setId_watched(existing.getInt("id"));
+            w.setId(existing.getInt("id"));
             w.setWatched_at(formatIso(existing.getTimestamp("watched_at")));
             existing.close(); check.close(); conn.close(); connMysql.close();
             return w;
@@ -71,12 +71,12 @@ public class ControllerWatchedMovie {
         pstm.executeUpdate();
 
         ResultSet rs = pstm.getGeneratedKeys();
-        if (rs.next()) w.setId_watched(rs.getInt(1));
+        if (rs.next()) w.setId(rs.getInt(1));
 
         // Fetch watched_at real
         PreparedStatement fetch = conn.prepareStatement(
             "SELECT watched_at FROM watched_movies WHERE id = ?");
-        fetch.setInt(1, w.getId_watched());
+        fetch.setInt(1, w.getId());
         ResultSet rs2 = fetch.executeQuery();
         if (rs2.next()) w.setWatched_at(formatIso(rs2.getTimestamp("watched_at")));
 
@@ -94,6 +94,18 @@ public class ControllerWatchedMovie {
         pstm.close(); conn.close(); connMysql.close();
         return rows > 0;
     }
+    
+    public boolean deleteByUserAndMovie(int idUser, int idMovie) throws SQLException {
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(
+        "DELETE FROM watched_movies WHERE id_user = ? AND id_movie = ?");
+    pstm.setInt(1, idUser);
+    pstm.setInt(2, idMovie);
+    int rows = pstm.executeUpdate();
+    pstm.close(); conn.close(); connMysql.close();
+    return rows > 0;
+}
 
     private String formatIso(java.sql.Timestamp ts) {
         if (ts == null) return null;
