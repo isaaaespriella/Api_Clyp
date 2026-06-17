@@ -29,18 +29,20 @@ public class RestFavorite {
         }
     }
 
-    @Path("save")
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response save(Favorite f) {
-        try {
-            f = new ControllerFavorite().save(f);
-            return Response.ok(new Gson().toJson(f)).build();
-        } catch (Exception e) {
-            return Response.status(500).entity("{\"error\":\"Error al guardar\"}").build();
-        }
+@Path("save")
+@POST
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public Response save(Favorite f) {
+    try {
+        f = new ControllerFavorite().save(f);
+        return Response.status(201).entity(new Gson().toJson(f)).build();
+    } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+        return Response.status(409).entity("{\"error\":\"Favorite already exists\"}").build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al guardar\"}").build();
     }
+}
 
     @Path("delete/{id_favorite}")
     @DELETE

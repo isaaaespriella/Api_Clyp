@@ -8,6 +8,8 @@ import org.lasalle.connection.ConnectionMysql;
 import org.lasalle.model.MoodCheckin;
 
 import java.sql.*;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
  *
  * @author elena
  */
+
 public class ControllerMoodCheckin {
 
     public List<MoodCheckin> getAll(int idUser) throws SQLException {
@@ -43,26 +46,22 @@ public class ControllerMoodCheckin {
     }
 
     public MoodCheckin save(MoodCheckin m) throws SQLException {
-        // Si viene checkin_time úsalo, si no usa NOW()
-        String sql = (m.getCheckin_time() != null && !m.getCheckin_time().isEmpty())
-            ? "INSERT INTO mood_checkins(id_user, id_mood, checkin_time) VALUES(?,?,?)"
-            : "INSERT INTO mood_checkins(id_user, id_mood, checkin_time) VALUES(?,?,NOW())";
+        Timestamp t = parseOrNow(m.getCheckin_time());
 
         ConnectionMysql connMysql = new ConnectionMysql();
         Connection conn = connMysql.open();
-        PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement pstm = conn.prepareStatement(
+            "INSERT INTO mood_checkins(id_user, id_mood, checkin_time) VALUES(?,?,?)",
+            Statement.RETURN_GENERATED_KEYS);
 
         pstm.setInt(1, m.getId_user());
         pstm.setInt(2, m.getId_mood());
-        if (m.getCheckin_time() != null && !m.getCheckin_time().isEmpty()) {
-            pstm.setString(3, m.getCheckin_time());
-        }
+        pstm.setTimestamp(3, t);
 
         pstm.executeUpdate();
         ResultSet rs = pstm.getGeneratedKeys();
         if (rs.next()) m.setId_checkin(rs.getInt(1));
 
-        // Fetch la fecha real guardada
         PreparedStatement fetch = conn.prepareStatement(
             "SELECT checkin_time FROM mood_checkins WHERE id_checkin = ?");
         fetch.setInt(1, m.getId_checkin());
@@ -74,28 +73,33 @@ public class ControllerMoodCheckin {
     }
 
     public MoodCheckin update(MoodCheckin m) throws SQLException {
+        Timestamp t = parseOrNow(m.getCheckin_time());
+
         ConnectionMysql connMysql = new ConnectionMysql();
         Connection conn = connMysql.open();
         PreparedStatement pstm = conn.prepareStatement(
             "UPDATE mood_checkins SET id_mood=?, checkin_time=? WHERE id_checkin=?");
         pstm.setInt(1, m.getId_mood());
-        pstm.setString(2, m.getCheckin_time());
+        pstm.setTimestamp(2, t);
         pstm.setInt(3, m.getId_checkin());
         int rows = pstm.executeUpdate();
 
         if (rows == 0) { pstm.close(); conn.close(); connMysql.close(); return null; }
 
-        // Fetch updated record
         PreparedStatement fetch = conn.prepareStatement(
             "SELECT * FROM mood_checkins WHERE id_checkin = ?");
         fetch.setInt(1, m.getId_checkin());
         ResultSet rs = fetch.executeQuery();
+        MoodCheckin updated = null;
         if (rs.next()) {
-            m.setId_user(rs.getInt("id_user"));
-            m.setCheckin_time(formatIso(rs.getTimestamp("checkin_time")));
+            updated = new MoodCheckin();
+            updated.setId_checkin(rs.getInt("id_checkin"));
+            updated.setId_user(rs.getInt("id_user"));
+            updated.setId_mood(rs.getInt("id_mood"));
+            updated.setCheckin_time(formatIso(rs.getTimestamp("checkin_time")));
         }
         rs.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
-        return m;
+        return updated;
     }
 
     public boolean delete(int idCheckin) throws SQLException {
@@ -107,6 +111,13 @@ public class ControllerMoodCheckin {
         int rows = pstm.executeUpdate();
         pstm.close(); conn.close(); connMysql.close();
         return rows > 0;
+    }
+
+    private Timestamp parseOrNow(String iso) {
+        if (iso == null || iso.isBlank()) {
+            return Timestamp.from(Instant.now());
+        }
+        return Timestamp.from(Instant.parse(iso));
     }
 
     private String formatIso(java.sql.Timestamp ts) {

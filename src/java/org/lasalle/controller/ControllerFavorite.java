@@ -37,26 +37,33 @@ public class ControllerFavorite {
     }
 
     public Favorite save(Favorite f) throws SQLException {
-        ConnectionMysql connMysql = new ConnectionMysql();
-        Connection conn = connMysql.open();
-        PreparedStatement pstm = conn.prepareStatement(
-            "INSERT INTO favorites(id_user, id_movie, favorited_at) VALUES(?,?,NOW())",
-            Statement.RETURN_GENERATED_KEYS);
-        pstm.setInt(1, f.getId_user());
-        pstm.setInt(2, f.getId_movie());
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(
+        "INSERT INTO favorites(id_user, id_movie, favorited_at) VALUES(?,?,NOW())",
+        Statement.RETURN_GENERATED_KEYS);
+    pstm.setInt(1, f.getId_user());
+    pstm.setInt(2, f.getId_movie());
+
+    try {
         pstm.executeUpdate();
-        ResultSet rs = pstm.getGeneratedKeys();
-        if (rs.next()) f.setId_favorite(rs.getInt(1));
-
-        PreparedStatement fetch = conn.prepareStatement(
-            "SELECT favorited_at FROM favorites WHERE id_favorite = ?");
-        fetch.setInt(1, f.getId_favorite());
-        ResultSet rs2 = fetch.executeQuery();
-        if (rs2.next()) f.setFavorited_at(formatIso(rs2.getTimestamp("favorited_at")));
-
-        rs.close(); rs2.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
-        return f;
+    } catch (SQLIntegrityConstraintViolationException e) {
+        pstm.close(); conn.close(); connMysql.close();
+        throw e;
     }
+
+    ResultSet rs = pstm.getGeneratedKeys();
+    if (rs.next()) f.setId_favorite(rs.getInt(1));
+
+    PreparedStatement fetch = conn.prepareStatement(
+        "SELECT favorited_at FROM favorites WHERE id_favorite = ?");
+    fetch.setInt(1, f.getId_favorite());
+    ResultSet rs2 = fetch.executeQuery();
+    if (rs2.next()) f.setFavorited_at(formatIso(rs2.getTimestamp("favorited_at")));
+
+    rs.close(); rs2.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
+    return f;
+}
 
     public boolean delete(int idFavorite) throws SQLException {
         ConnectionMysql connMysql = new ConnectionMysql();

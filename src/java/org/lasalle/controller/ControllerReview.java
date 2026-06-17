@@ -41,49 +41,68 @@ public class ControllerReview {
         return r;
     }
 
-    public Review save(Review r) throws SQLException, SQLIntegrityConstraintViolationException {
-        ConnectionMysql connMysql = new ConnectionMysql();
-        Connection conn = connMysql.open();
-        PreparedStatement pstm = conn.prepareStatement(
-            "INSERT INTO reviews(id_user, id_movie, text, rating, created_at, updated_at) VALUES(?,?,?,?,NOW(),NOW())",
-            Statement.RETURN_GENERATED_KEYS);
-        pstm.setInt(1, r.getId_user());
-        pstm.setInt(2, r.getId_movie());
+public Review save(Review r) throws SQLException, IllegalArgumentException {
+    if (r.getRating() < 1 || r.getRating() > 5) {
+        throw new IllegalArgumentException("rating must be between 1 and 5");
+    }
+
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(
+        "INSERT INTO reviews(id_user, id_movie, text, rating, created_at, updated_at) VALUES(?,?,?,?,NOW(),NOW())",
+        Statement.RETURN_GENERATED_KEYS);
+    pstm.setInt(1, r.getId_user());
+    pstm.setInt(2, r.getId_movie());
+    if (r.getText() == null || r.getText().isBlank()) {
+        pstm.setNull(3, java.sql.Types.VARCHAR);
+    } else {
         pstm.setString(3, r.getText());
-        pstm.setInt(4, r.getRating());
+    }
+    pstm.setInt(4, r.getRating());
+
+    try {
         pstm.executeUpdate();
-        ResultSet rs = pstm.getGeneratedKeys();
-        if (rs.next()) r.setId_review(rs.getInt(1));
-
-        PreparedStatement fetch = conn.prepareStatement(
-            "SELECT * FROM reviews WHERE id_review = ?");
-        fetch.setInt(1, r.getId_review());
-        ResultSet rs2 = fetch.executeQuery();
-        if (rs2.next()) r = mapRow(rs2);
-
-        rs.close(); rs2.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
-        return r;
+    } catch (SQLIntegrityConstraintViolationException e) {
+        pstm.close(); conn.close(); connMysql.close();
+        throw e;
     }
 
-    public Review update(Review r) throws SQLException {
-        ConnectionMysql connMysql = new ConnectionMysql();
-        Connection conn = connMysql.open();
-        PreparedStatement pstm = conn.prepareStatement(
-            "UPDATE reviews SET text=?, rating=?, updated_at=NOW() WHERE id_review=?");
-        pstm.setString(1, r.getText());
-        pstm.setInt(2, r.getRating());
-        pstm.setInt(3, r.getId_review());
-        int rows = pstm.executeUpdate();
-        if (rows == 0) { pstm.close(); conn.close(); connMysql.close(); return null; }
+    ResultSet rs = pstm.getGeneratedKeys();
+    if (rs.next()) r.setId_review(rs.getInt(1));
 
-        PreparedStatement fetch = conn.prepareStatement(
-            "SELECT * FROM reviews WHERE id_review = ?");
-        fetch.setInt(1, r.getId_review());
-        ResultSet rs = fetch.executeQuery();
-        Review updated = rs.next() ? mapRow(rs) : null;
-        rs.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
-        return updated;
+    PreparedStatement fetch = conn.prepareStatement(
+        "SELECT * FROM reviews WHERE id_review = ?");
+    fetch.setInt(1, r.getId_review());
+    ResultSet rs2 = fetch.executeQuery();
+    if (rs2.next()) r = mapRow(rs2);
+
+    rs.close(); rs2.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
+    return r;
+}
+
+public Review update(Review r) throws SQLException, IllegalArgumentException {
+    if (r.getRating() < 1 || r.getRating() > 5) {
+        throw new IllegalArgumentException("rating must be between 1 and 5");
     }
+
+    ConnectionMysql connMysql = new ConnectionMysql();
+    Connection conn = connMysql.open();
+    PreparedStatement pstm = conn.prepareStatement(
+        "UPDATE reviews SET text=?, rating=?, updated_at=NOW() WHERE id_review=?");
+    pstm.setString(1, r.getText());
+    pstm.setInt(2, r.getRating());
+    pstm.setInt(3, r.getId_review());
+    int rows = pstm.executeUpdate();
+    if (rows == 0) { pstm.close(); conn.close(); connMysql.close(); return null; }
+
+    PreparedStatement fetch = conn.prepareStatement(
+        "SELECT * FROM reviews WHERE id_review = ?");
+    fetch.setInt(1, r.getId_review());
+    ResultSet rs = fetch.executeQuery();
+    Review updated = rs.next() ? mapRow(rs) : null;
+    rs.close(); fetch.close(); pstm.close(); conn.close(); connMysql.close();
+    return updated;
+}
 
     public boolean delete(int idReview) throws SQLException {
         ConnectionMysql connMysql = new ConnectionMysql();

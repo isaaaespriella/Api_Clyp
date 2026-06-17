@@ -31,48 +31,51 @@ public class RestReview {
     }
 
     @Path("getByUserAndMovie")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getByUserAndMovie(
-            @QueryParam("id_user") int idUser,
-            @QueryParam("id_movie") int idMovie) {
-        try {
-            Review r = new ControllerReview().getByUserAndMovie(idUser, idMovie);
-            if (r == null) return Response.status(404).build();
-            return Response.ok(new Gson().toJson(r)).build();
-        } catch (Exception e) {
-            return Response.status(500).entity("{\"error\":\"Error\"}").build();
-        }
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+public Response getByUserAndMovie(
+        @QueryParam("id_user") int idUser,
+        @QueryParam("id_movie") int idMovie) {
+    try {
+        Review r = new ControllerReview().getByUserAndMovie(idUser, idMovie);
+        return Response.ok(new Gson().toJson(r)).build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error\"}").build();
     }
+}
 
     @Path("save")
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response save(Review r) {
-        try {
-            r = new ControllerReview().save(r);
-            return Response.status(201).entity(new Gson().toJson(r)).build();
-        } catch (SQLIntegrityConstraintViolationException e) {
-            return Response.status(409).entity("{\"error\":\"Review already exists for this movie\"}").build();
-        } catch (Exception e) {
-            return Response.status(500).entity("{\"error\":\"Error al guardar\"}").build();
-        }
+@POST
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public Response save(Review r) {
+    try {
+        r = new ControllerReview().save(r);
+        return Response.status(201).entity(new Gson().toJson(r)).build();
+    } catch (IllegalArgumentException e) {
+        return Response.status(400).entity("{\"error\":\"" + e.getMessage() + "\"}").build();
+    } catch (SQLIntegrityConstraintViolationException e) {
+        return Response.status(409).entity("{\"error\":\"Review already exists for this movie\"}").build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al guardar\"}").build();
     }
+}
 
-    @Path("update")
-    @PUT
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(Review r) {
-        try {
-            Review updated = new ControllerReview().update(r);
-            if (updated == null) return Response.status(404).entity("{\"error\":\"Review not found\"}").build();
-            return Response.ok(new Gson().toJson(updated)).build();
-        } catch (Exception e) {
-            return Response.status(500).entity("{\"error\":\"Error al actualizar\"}").build();
-        }
+@Path("update")
+@PUT
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public Response update(Review r) {
+    try {
+        Review updated = new ControllerReview().update(r);
+        if (updated == null) return Response.status(404).entity("{\"error\":\"Review not found\"}").build();
+        return Response.ok(new Gson().toJson(updated)).build();
+    } catch (IllegalArgumentException e) {
+        return Response.status(400).entity("{\"error\":\"" + e.getMessage() + "\"}").build();
+    } catch (Exception e) {
+        return Response.status(500).entity("{\"error\":\"Error al actualizar\"}").build();
     }
+}
 
     @Path("delete/{id_review}")
     @DELETE
